@@ -189,6 +189,8 @@ public class TransacionServiceImpl implements TransactionService {
                     x.setMaintenanceCommission(t.getMaintenanceCommission());
                     x.setCardNumber(t.getCardNumber());
                     x.setRetirementDateFixedTerm(t.getRetirementDateFixedTerm());
+                    x.setMaxAmountTransaction(t.getMaxAmountTransaction());
+                    x.setCurrentNumberTransaction(t.getCurrentNumberTransaction());
                     return x;
                 }).flatMap(transactionRepository::save);
     }

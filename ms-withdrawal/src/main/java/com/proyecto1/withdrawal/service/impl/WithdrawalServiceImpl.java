@@ -1,14 +1,18 @@
 package com.proyecto1.withdrawal.service.impl;
 
-import com.proyecto1.withdrawal.client.TransactionClient;
-import com.proyecto1.withdrawal.entity.Withdrawal;
-import com.proyecto1.withdrawal.repository.WithdrawalRepository;
-import com.proyecto1.withdrawal.service.WithdrawalService;
+import java.math.BigDecimal;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import com.proyecto1.withdrawal.client.TransactionClient;
+import com.proyecto1.withdrawal.entity.Transaction;
+import com.proyecto1.withdrawal.entity.Withdrawal;
+import com.proyecto1.withdrawal.repository.WithdrawalRepository;
+import com.proyecto1.withdrawal.service.WithdrawalService;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -36,7 +40,20 @@ public class WithdrawalServiceImpl implements WithdrawalService {
                 .hasElement()
                 .flatMap( y -> {
                     if(y){
-                        return withdrawalRepository.save(c);
+                    	return transactionClient.getTransactionWithDetails(c.getTransactionId()).flatMap(account -> {
+                    		if(account.getMaxAmountTransaction() > account.getCurrentNumberTransaction()) {
+                    			return updateCurrentNumberTransaction(transactionClient.getTransactionWithDetails(c.getTransactionId()))
+                    					.flatMap(trans -> {
+                    						return withdrawalRepository.save(c);
+                    					});
+                    			// return depositRepository.save(deposit).doOnNext(depositSaved -> updateCurrentNumberTransaction(transactionClient.getTransactionWithDetails(deposit.getTransactionId())));
+                    		} else {
+                    			// Maximo Numero de trasacciones, se cobra comision
+                    			c.setWithdrawalAmount(c.getWithdrawalAmount().add(account.getMaintenanceCommission().multiply(c.getWithdrawalAmount().divide(BigDecimal.valueOf(100)))));
+                    			return withdrawalRepository.save(c);
+                    		}
+                    	});
+                        
                     }else{
                         return Mono.error(new RuntimeException("The account entered is not a bank account"));
                     }
@@ -66,5 +83,12 @@ public class WithdrawalServiceImpl implements WithdrawalService {
     public Mono<Withdrawal> delete(String id) {
         log.info("Method call Delete - withdrawal");
         return withdrawalRepository.findById(id).flatMap( x -> withdrawalRepository.delete(x).then(Mono.just(new Withdrawal())));
+    }
+    
+    public Mono<Transaction> updateCurrentNumberTransaction(Mono<Transaction> trans) {
+    	return trans.flatMap(t -> {
+    		t.setCurrentNumberTransaction(t.getCurrentNumberTransaction()+1);
+    		return transactionClient.updateTransaction(t);
+    	});
     }
 }

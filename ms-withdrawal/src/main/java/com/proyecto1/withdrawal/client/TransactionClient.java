@@ -19,4 +19,15 @@ public class TransactionClient {
                 .retrieve()
                 .bodyToMono(Transaction.class);
     };
+    
+    public Mono<Transaction> updateTransaction(Transaction transaction){
+        return client.put()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/update/{id}")
+                        .build(transaction.getId())
+                )
+                .bodyValue(transaction)
+                .retrieve()
+                .bodyToMono(Transaction.class);
+    };
 }
