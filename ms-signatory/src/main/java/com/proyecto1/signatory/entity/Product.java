@@ -9,4 +9,6 @@ public class Product {
     private String descIndProduct;
     private int typeProduct;
     private String descTypeProduct;
+    private Double amountPerMonth;
+    private Double amountPerDay;
 }

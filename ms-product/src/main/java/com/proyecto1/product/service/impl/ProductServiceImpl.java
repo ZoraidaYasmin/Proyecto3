@@ -43,6 +43,8 @@ public class ProductServiceImpl implements ProductService {
                     x.setDescIndProduct(c.getDescIndProduct());
                     x.setTypeProduct(c.getTypeProduct());
                     x.setDescTypeProduct(c.getDescTypeProduct());
+                    x.setAmountPerDay(c.getAmountPerDay());
+                    x.setAmountPerMonth(c.getAmountPerMonth());
                     return x;
                 }).flatMap(productRepository::save);
     }

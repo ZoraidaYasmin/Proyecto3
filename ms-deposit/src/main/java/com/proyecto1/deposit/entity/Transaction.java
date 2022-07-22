@@ -1,14 +1,14 @@
 package com.proyecto1.deposit.entity;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.Data;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.Transient;
-import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.format.annotation.DateTimeFormat;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
+
+import org.springframework.data.annotation.Transient;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+
+import lombok.Data;
 
 
 @Data
@@ -24,6 +24,8 @@ public class Transaction {
     private BigDecimal availableBalance;
     private BigDecimal maintenanceCommission;
     private String cardNumber;
+    private Integer maxAmountTransaction;
+    private Integer currentNumberTransaction;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)

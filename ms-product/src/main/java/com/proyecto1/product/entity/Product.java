@@ -1,11 +1,14 @@
 package com.proyecto1.product.entity;
 
+import java.math.BigDecimal;
+
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection = "schema_prod.product")
 @Data
@@ -20,4 +23,6 @@ public class Product {
     private String descIndProduct;
     private int typeProduct;
     private String descTypeProduct;
+    private BigDecimal amountPerMonth;
+    private BigDecimal amountPerDay;
 }

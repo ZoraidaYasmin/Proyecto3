@@ -1,5 +1,7 @@
 package com.proyecto1.transaction.entity;
 
+import java.math.BigDecimal;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,4 +17,6 @@ public class Product {
     private String descIndProduct;
     private int typeProduct;
     private String descTypeProduct;
+    private BigDecimal amountPerMonth;
+    private BigDecimal amountPerDay;
 }
