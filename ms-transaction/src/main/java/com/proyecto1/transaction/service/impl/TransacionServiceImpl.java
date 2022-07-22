@@ -74,7 +74,7 @@ public class TransacionServiceImpl implements TransactionService {
                                        return Mono.error(new RuntimeException("The personal client cannot have more than one credit"));
                                    }else{
                                        return product.getProduct(t.getProductId())
-                                               .filter( x -> (x.getIndProduct() == 2) )
+                                               .filter( x -> (x.getIndProduct() == 2))
                                                .filter( x -> (x.getTypeProduct() == 1 || x.getTypeProduct() == 3) )
                                                .hasElement()
                                                .flatMap( zz -> {
@@ -82,18 +82,92 @@ public class TransacionServiceImpl implements TransactionService {
                                                            .filter( (x -> x.getTypeCustomer() == 2) )
                                                            .hasElement()
                                                            .flatMap( yy -> {
-                                                               if ( zz  && yy ){
-                                                                   return Mono.error(new RuntimeException("The business client cannot have a savings or fixed-term account"));
-                                                               }else{
-                                                                   				return transactionRepository.save(t);
-
-                                                               }
+                                                        	   return customerClient.getCustomer(t.getCustomerId()).flatMap(customerToSend -> {
+                                                        		   
+                                                        		   return product.getProduct(t.getProductId()).flatMap(pToSend -> {
+                                                        			   
+                                                        			   
+                                                        			   
+                                                        			   if ( zz  && yy && customerToSend.getTypeCustomer() == 2){
+                                                                           return Mono.error(new RuntimeException("The business client cannot have a savings or fixed-term account"));
+                                                                       } else if (customerToSend.getTypeCustomer() == 1 || customerToSend.getTypeCustomer() == 2) {
+                                                                    	   if (t.getAvailableBalance().compareTo(BigDecimal.ZERO)<=0) {
+                       	    		                              		  		t.setAvailableBalance(BigDecimal.ZERO);
+                       	    		                              	  		}
+                                                                    	   return transactionRepository.save(t);
+                                                                       } else if (customerToSend.getTypeCustomer() == 3) {
+                                                                    	   Boolean b = pToSend.getAmountPerDay().compareTo(BigDecimal.ZERO)>0 && pToSend.getAmountPerMonth().compareTo(BigDecimal.ZERO)>0;
+                                                                    	   return personalVipEmpresaPymeValidation(t, customerToSend.getTypeCustomer(), 1, b); // Cuenta de ahorro para Personal Vip
+                                                                       } else {
+                                                                    	   
+                                                                    	   return personalVipEmpresaPymeValidation(t, customerToSend.getTypeCustomer(), 2 , true); // Cuenta corriente Empresarial Pyme
+                                                                       }
+                                                        		   });
+                                                        		   
+                                                        	   });
+                                                               
                                                            });
                                                });
                                    }
                                 });
                     }
                 });
+    }
+    
+    public Mono<Transaction> personalVipEmpresaPymeValidation(Transaction t, Integer typeCostumerToValidate, Integer typeProductToValidate, Boolean f) {
+    	return hasCreditCard(t).filter(btc -> btc.equals(Boolean.TRUE))
+    			.hasElements()
+    			.flatMap(bTarjetaCredito -> {
+    					if (Boolean.TRUE.equals(bTarjetaCredito)) {
+    						return product.getProduct(t.getProductId())
+    	    		                .filter( x -> (x.getTypeProduct() == typeProductToValidate && f)
+    	    		                		|| x.getTypeProduct() == 6)
+    	    		                .hasElement()
+    	    		                .flatMap( bp -> {
+    	    		                    return customerClient.getCustomer(t.getCustomerId())
+    	    		                            .filter( (x -> x.getTypeCustomer() == typeCostumerToValidate) )
+    	    		                            .hasElement()
+    	    		                            .flatMap( bc -> {
+    	    		                                if ( bp  && bc ){
+    	    		                                	if (t.getAvailableBalance().compareTo(BigDecimal.ZERO)<=0) {
+    	    		                              		  	t.setAvailableBalance(BigDecimal.ZERO);
+    	    		                              	  	}
+    	    		                                	// Comision 0 para personal vip y empresarial pyme
+    	    		                                	t.setMaintenanceCommission(BigDecimal.ZERO);
+    	    		                                    return transactionRepository.save(t);
+    	    		                                    //
+    	    		                                }else{
+    	    		                                	return Mono.error(new RuntimeException("No se pudo crear una cuenta de ahorro para Personal Vip, no cumple las condiciones"));
+    	    		                                }
+    	    		                            });
+    	    		                });
+    					} else {
+    						return product.getProduct(t.getProductId())
+    	    		                .filter( x -> ( x.getTypeProduct() == 6 ))
+    	    		                .hasElement()
+    	    		                .flatMap( bp -> {
+    	    		                	if (bp) {
+    	    		                		if (t.getAvailableBalance().compareTo(BigDecimal.ZERO)<=0) {
+		                              		  	t.setAvailableBalance(BigDecimal.ZERO);
+		                              	  	}
+    	    		                		// Comision 0 para personal vip y empresarial pyme
+    	    		                		t.setMaintenanceCommission(BigDecimal.ZERO);
+    	    		                		return transactionRepository.save(t);
+										} else {
+											return Mono.error(new RuntimeException("Solo puede crearse cuenta de ahorro para Personal Vip, si tiene tarjeta de credito"));
+										}
+    	    		                });
+    					}
+    			});
+    }
+    
+    public Flux<Boolean> hasCreditCard(Transaction t) {
+    	//transaction - productId - evaluarProductId - boolean
+    	return findAll().filter(trans -> trans.getCustomerId().equalsIgnoreCase(t.getCustomerId()))
+    			.flatMap(trans -> {
+    				return product.getProduct(trans.getProductId()).filter(prod -> prod.getTypeProduct() == 6)
+    						.hasElement();			
+    			});
     }
 
     @Override
