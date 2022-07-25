@@ -1,4 +1,4 @@
-package com.proyecto3.bankTransfer;
+package com.project3.debitcard;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -6,10 +6,10 @@ import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 
 @EnableEurekaClient
 @SpringBootApplication
-public class BankTransferApplication {
+public class DebitcardServiceApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(BankTransferApplication.class, args);
+		SpringApplication.run(DebitcardServiceApplication.class, args);
 	}
 
 }

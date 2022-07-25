@@ -83,11 +83,7 @@ public class TransacionServiceImpl implements TransactionService {
                                                            .hasElement()
                                                            .flatMap( yy -> {
                                                         	   return customerClient.getCustomer(t.getCustomerId()).flatMap(customerToSend -> {
-                                                        		   
                                                         		   return product.getProduct(t.getProductId()).flatMap(pToSend -> {
-                                                        			   
-                                                        			   
-                                                        			   
                                                         			   if ( zz  && yy && customerToSend.getTypeCustomer() == 2){
                                                                            return Mono.error(new RuntimeException("The business client cannot have a savings or fixed-term account"));
                                                                        } else if (customerToSend.getTypeCustomer() == 1 || customerToSend.getTypeCustomer() == 2) {
@@ -114,6 +110,9 @@ public class TransacionServiceImpl implements TransactionService {
                 });
     }
     
+    /*
+     * Indica si existe una deuda pendiente 
+     */
     private Mono<Transaction> maturedDebt (Transaction transaction) {
     	return findAllWithDetail().filter(trans -> trans.getCustomerId().equalsIgnoreCase(transaction.getCustomerId()))
     		.filter(trans -> trans.getProduct().getIndProduct() == 1)
@@ -207,6 +206,7 @@ public class TransacionServiceImpl implements TransactionService {
                     x.setMaxAmountTransaction(t.getMaxAmountTransaction());
                     x.setCurrentNumberTransaction(t.getCurrentNumberTransaction());
                     x.setRegistrationDate(t.getRegistrationDate());
+                    x.setCreditCardAssociationDate(t.getCreditCardAssociationDate());
                     return x;
                 }).flatMap(transactionRepository::save);
     }
