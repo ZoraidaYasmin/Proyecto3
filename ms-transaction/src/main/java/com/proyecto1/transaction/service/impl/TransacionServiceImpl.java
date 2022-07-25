@@ -94,7 +94,7 @@ public class TransacionServiceImpl implements TransactionService {
                                                                     	   if (t.getAvailableBalance().compareTo(BigDecimal.ZERO)<=0) {
                        	    		                              		  		t.setAvailableBalance(BigDecimal.ZERO);
                        	    		                              	  		}
-                                                                    	   return transactionRepository.save(t);
+                                                                    	   return maturedDebt(t);
                                                                        } else if (customerToSend.getTypeCustomer() == 3) {
                                                                     	   Boolean b = pToSend.getAmountPerDay().compareTo(BigDecimal.ZERO)>0 && pToSend.getAmountPerMonth().compareTo(BigDecimal.ZERO)>0;
                                                                     	   return personalVipEmpresaPymeValidation(t, customerToSend.getTypeCustomer(), 1, b); // Cuenta de ahorro para Personal Vip
@@ -112,6 +112,21 @@ public class TransacionServiceImpl implements TransactionService {
                                 });
                     }
                 });
+    }
+    
+    private Mono<Transaction> maturedDebt (Transaction transaction) {
+    	return findAllWithDetail().filter(trans -> trans.getCustomerId().equalsIgnoreCase(transaction.getCustomerId()))
+    		.filter(trans -> trans.getProduct().getIndProduct() == 1)
+    		.filter(trans -> trans.getMaturedDebt() == 1)
+    		.hasElements() // 1 indica que hay un producto de credito con deuda vencida
+    		.flatMap(deuda -> {
+    			if(deuda) {
+    				return Mono.error(new RuntimeException("Tiene una deuda vencida"));
+    			} else {
+    				return transactionRepository.save(transaction);
+    			}
+    			
+    		}); 
     }
     
     public Mono<Transaction> personalVipEmpresaPymeValidation(Transaction t, Integer typeCostumerToValidate, Integer typeProductToValidate, Boolean f) {
@@ -134,7 +149,7 @@ public class TransacionServiceImpl implements TransactionService {
     	    		                              	  	}
     	    		                                	// Comision 0 para personal vip y empresarial pyme
     	    		                                	t.setMaintenanceCommission(BigDecimal.ZERO);
-    	    		                                    return transactionRepository.save(t);
+    	    		                                    return maturedDebt(t);
     	    		                                    //
     	    		                                }else{
     	    		                                	return Mono.error(new RuntimeException("No se pudo crear una cuenta de ahorro para Personal Vip, no cumple las condiciones"));
@@ -152,7 +167,7 @@ public class TransacionServiceImpl implements TransactionService {
 		                              	  	}
     	    		                		// Comision 0 para personal vip y empresarial pyme
     	    		                		t.setMaintenanceCommission(BigDecimal.ZERO);
-    	    		                		return transactionRepository.save(t);
+    	    		                		return maturedDebt(t);
 										} else {
 											return Mono.error(new RuntimeException("Solo puede crearse cuenta de ahorro para Personal Vip, si tiene tarjeta de credito"));
 										}
@@ -191,6 +206,7 @@ public class TransacionServiceImpl implements TransactionService {
                     x.setRetirementDateFixedTerm(t.getRetirementDateFixedTerm());
                     x.setMaxAmountTransaction(t.getMaxAmountTransaction());
                     x.setCurrentNumberTransaction(t.getCurrentNumberTransaction());
+                    x.setRegistrationDate(t.getRegistrationDate());
                     return x;
                 }).flatMap(transactionRepository::save);
     }

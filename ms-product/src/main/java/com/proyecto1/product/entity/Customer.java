@@ -1,16 +1,15 @@
-package com.proyecto1.customer.dto;
+package com.proyecto1.product.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class CustomerDTO {
+public class Customer {
 
     private String id;
     private String name;
@@ -18,5 +17,4 @@ public class CustomerDTO {
     private String docNumber;
     private int typeCustomer;
     private String descTypeCustomer;
-    private ReporteDTO reporteDTO;
 }

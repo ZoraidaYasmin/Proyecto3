@@ -1,30 +1,20 @@
-package com.proyecto1.transaction.entity;
+package com.proyecto1.product.entity;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
-import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
-import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonInclude;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
-@Document(collection = "schema_account.transaction")
-@JsonInclude(JsonInclude.Include.NON_EMPTY)
+
 @Data
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor
 public class Transaction {
-    @Id
+
     private String id;
 
     private String customerId;
@@ -37,13 +27,13 @@ public class Transaction {
     private BigDecimal maintenanceCommission;
     private String cardNumber;
     private Integer maxAmountTransaction;
-    private Integer currentNumberTransaction; 
+    private Integer currentNumberTransaction;
     private int maturedDebt;
     
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDate registrationDate;
-
+    
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDate retirementDateFixedTerm;
@@ -68,5 +58,10 @@ public class Transaction {
 
     @Transient
     private List<Signatory> signatories;
+
+    @Transient
+    private BigDecimal averageDailyBalancesForMonth;
+
+
 
 }
