@@ -1,4 +1,4 @@
-package com.proyecto1.transaction.entity;
+package com.proyecto1.customer.entity;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -14,7 +14,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 
-@Data @AllArgsConstructor @NoArgsConstructor
+@Data @NoArgsConstructor @AllArgsConstructor
 @Builder
 public class Payment {
 

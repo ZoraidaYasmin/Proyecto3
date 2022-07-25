@@ -1,4 +1,4 @@
-package com.proyecto1.transaction.entity;
+package com.proyecto1.product.entity;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -13,17 +13,16 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-
-@Data @AllArgsConstructor @NoArgsConstructor
+@Data @NoArgsConstructor @AllArgsConstructor
 @Builder
-public class Payment {
+public class Purchase {
 
     @Id
     private String id;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDate date;
-    private BigDecimal paymentAmount;
+    private BigDecimal purchaseAmount;
     private String description;
     private String transactionId;
 }

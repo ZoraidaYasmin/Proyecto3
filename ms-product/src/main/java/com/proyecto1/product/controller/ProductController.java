@@ -1,10 +1,11 @@
 package com.proyecto1.product.controller;
 
-import com.proyecto1.product.entity.Product;
-import com.proyecto1.product.service.ProductService;
+import java.time.LocalDate;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,6 +14,12 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.proyecto1.product.entity.Product;
+import com.proyecto1.product.entity.Transaction;
+import com.proyecto1.product.service.ProductService;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -67,5 +74,15 @@ public class ProductController {
   public Mono<Product> deleteCustomer(@PathVariable String id) {
     LOG.info("Service call delete - Product");
     return productService.delete(id);
+  }
+  
+  @GetMapping("/reportByDate/{startDate}/{endDate}")
+  public Flux<Transaction> reportByDate(@PathVariable @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+  @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+  LocalDate startDate, @PathVariable @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+  @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+  LocalDate endDate) {
+    LOG.info("Service call create - product");
+    return productService.reportByDate(startDate, endDate);
   }
 }

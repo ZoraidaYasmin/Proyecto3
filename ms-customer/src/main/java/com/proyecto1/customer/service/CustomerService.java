@@ -2,6 +2,8 @@ package com.proyecto1.customer.service;
 
 import com.proyecto1.customer.dto.CustomerDTO;
 import com.proyecto1.customer.entity.Customer;
+import com.proyecto1.customer.entity.Transaction;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -16,4 +18,6 @@ public interface CustomerService {
     Mono<Customer> update(CustomerDTO c, String id);
 
     Mono<Customer> delete(String id);
+    
+    Flux<Transaction> summaryCustomerByProduct();
 }
