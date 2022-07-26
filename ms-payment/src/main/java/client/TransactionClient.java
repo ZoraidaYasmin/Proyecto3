@@ -1,4 +1,4 @@
-package com.proyecto1.payment.client;
+package client;
 
 import com.proyecto1.payment.entity.Transaction;
 import org.springframework.stereotype.Component;

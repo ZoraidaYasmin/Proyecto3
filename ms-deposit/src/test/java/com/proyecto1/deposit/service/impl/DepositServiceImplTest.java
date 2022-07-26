@@ -1,11 +1,10 @@
 package com.proyecto1.deposit.service.impl;
 
 
+import com.proyecto1.deposit.client.DebitCardClient;
 import com.proyecto1.deposit.client.TransactionClient;
 import com.proyecto1.deposit.dto.DepositDTO;
-import com.proyecto1.deposit.entity.Deposit;
-import com.proyecto1.deposit.entity.Product;
-import com.proyecto1.deposit.entity.Transaction;
+import com.proyecto1.deposit.entity.*;
 import com.proyecto1.deposit.repository.DepositRepository;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.Test;
@@ -38,6 +37,9 @@ public class DepositServiceImplTest {
     @InjectMocks
     private DepositServiceImpl depositServiceImpl;
 
+    @Mock
+    private DebitCardClient debitCardClient;
+
     @Test
      void createDepositTest() {
         DepositDTO depositMono = DepositDTO.builder()
@@ -66,13 +68,21 @@ public class DepositServiceImplTest {
         transaction.setMaintenanceCommission(BigDecimal.valueOf(30));
         transaction.setCardNumber("764249236473249234234");
         transaction.setRetirementDateFixedTerm(LocalDate.now());
+        transaction.setMaxAmountTransaction(2);
+        transaction.setCurrentNumberTransaction(1);
         transaction.setProduct(product);
 
+        DebitCard debitCard = DebitCard.builder()
+                .id("578462f5dg452gdf")
+                .cardNumber("246845445365326221")
+                .customer(new Customer())
+                .product(new Product()).build();
 
         Deposit deposit = new Deposit();
         BeanUtils.copyProperties(depositMono,deposit);
 
-        Mockito.when(transactionClient.getTransactionWithDetails(transaction.getId())).thenReturn(Mono.just(transaction));
+        Mockito.when(transactionClient.getTransactionWithDetails(deposit.getTransactionId())).thenReturn(Mono.just(transaction));
+        Mockito.when(debitCardClient.getAccountDetailByDebitCard(transaction.getCardNumber())).thenReturn(Flux.just(debitCard));
         Mockito.when(depositRepository.save(Mockito.any())).thenReturn(Mono.just(deposit));
 
         assertDoesNotThrow(() -> depositServiceImpl.create(depositMono)

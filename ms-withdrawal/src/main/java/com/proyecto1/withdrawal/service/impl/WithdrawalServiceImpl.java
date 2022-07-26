@@ -91,7 +91,7 @@ public class WithdrawalServiceImpl implements WithdrawalService {
         return withdrawalRepository.findById(id).flatMap( x -> withdrawalRepository.delete(x).then(Mono.just(new Withdrawal())));
     }
     
-    public Mono<Transaction> updateCurrentNumberTransaction(Mono<Transaction> trans) {
+    private Mono<Transaction> updateCurrentNumberTransaction(Mono<Transaction> trans) {
     	return trans.flatMap(t -> {
     		t.setCurrentNumberTransaction(t.getCurrentNumberTransaction()+1);
     		return transactionClient.updateTransaction(t);

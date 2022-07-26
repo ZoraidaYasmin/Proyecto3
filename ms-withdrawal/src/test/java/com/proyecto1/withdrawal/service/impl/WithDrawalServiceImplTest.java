@@ -62,11 +62,13 @@ public class WithDrawalServiceImplTest {
         transaction.setAvailableBalance(BigDecimal.valueOf(30));
         transaction.setMaintenanceCommission(BigDecimal.valueOf(30));
         transaction.setCardNumber("764249236473249234234");
+        transaction.setMaxAmountTransaction(2);
+        transaction.setCurrentNumberTransaction(1);
         transaction.setRetirementDateFixedTerm(LocalDate.now());
         transaction.setProduct(product);
 
 
-        Mockito.when(transactionClient.getTransactionWithDetails(transaction.getId())).thenReturn(Mono.just(transaction));
+        Mockito.when(transactionClient.getTransactionWithDetails(withdrawalMono.getTransactionId())).thenReturn(Mono.just(transaction));
         Mockito.when(withdrawalRepository.save(Mockito.any())).thenReturn(Mono.just(withdrawalMono));
 
         assertDoesNotThrow(() -> withdrawalServiceImpl.create(withdrawalMono)
