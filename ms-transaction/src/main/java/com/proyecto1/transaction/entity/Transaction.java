@@ -72,8 +72,5 @@ public class Transaction {
 
     @Transient
     private List<Signatory> signatories;
-    
-    @Transient
-    private DebitCard debitCard;
 
 }

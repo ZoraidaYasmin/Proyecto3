@@ -36,8 +36,9 @@ public class DebitCardServiceImpl implements DebitCardService{
 				}));
 
 	}
-    
-    private void ValorAllValidator(DebitCard debitCard, List<Transaction> transaction) {
+
+	private void ValorAllValidator(DebitCard debitCard, List<Transaction> transaction) {
+		transaction.sort((o1, o2) -> o1.getCreditCardAssociationDate().compareTo(o2.getCreditCardAssociationDate()));
     	debitCard.setTransaction(transaction);
     }
 
