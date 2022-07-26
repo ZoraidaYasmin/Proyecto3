@@ -33,6 +33,9 @@ public class DebitCard {
     
     @Transient
     private List<Transaction> transaction;
+    
+    @Transient
+    private Transaction trans;
 
     @Transient
     private List<Deposit> deposit;

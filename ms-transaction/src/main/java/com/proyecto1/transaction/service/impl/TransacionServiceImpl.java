@@ -3,19 +3,33 @@ package com.proyecto1.transaction.service.impl;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
-import com.proyecto1.transaction.client.*;
-import com.proyecto1.transaction.entity.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.proyecto1.transaction.client.CustomerClient;
+import com.proyecto1.transaction.client.DepositClient;
+import com.proyecto1.transaction.client.PaymentClient;
+import com.proyecto1.transaction.client.ProductClient;
+import com.proyecto1.transaction.client.PurchaseClient;
+import com.proyecto1.transaction.client.SignatoryClient;
+import com.proyecto1.transaction.client.WithDrawalClient;
+import com.proyecto1.transaction.entity.Customer;
+import com.proyecto1.transaction.entity.DateInterface;
+import com.proyecto1.transaction.entity.Deposit;
+import com.proyecto1.transaction.entity.Payment;
+import com.proyecto1.transaction.entity.Product;
+import com.proyecto1.transaction.entity.Purchase;
+import com.proyecto1.transaction.entity.Signatory;
+import com.proyecto1.transaction.entity.Transaction;
+import com.proyecto1.transaction.entity.Withdrawal;
 import com.proyecto1.transaction.repository.TransactionRepository;
 import com.proyecto1.transaction.service.TransactionService;
 
+import lombok.extern.java.Log;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -304,5 +318,55 @@ public class TransacionServiceImpl implements TransactionService {
         trans.setPayments(payments.stream().collect(Collectors.toList()));
         trans.setPurchases(purchases.stream().collect(Collectors.toList()));
         trans.setSignatories(signatories.stream().collect(Collectors.toList()));
+    }
+    
+    @Override
+	public Flux<Transaction> lastTenMovements() {
+    	return transactionRepository.findAll()
+                .flatMap( trans -> customerClient.getCustomer(trans.getCustomerId())
+                        .flatMapMany( customer -> {
+                            return product.getProduct(trans.getProductId())
+                                    .flatMapMany( product -> depositClient.getDeposit()
+                                            .filter(x -> x.getTransactionId().equals(trans.getId()))
+                                            .collectList()
+                                            .flatMapMany((deposit -> {
+                                                return withDrawalClient.getWithDrawal()
+                                                        .filter(i -> i.getTransactionId().equals(trans.getId()))
+                                                        .collectList()
+                                                        .flatMapMany(( withdrawals -> {
+                                                            return paymentClient.getPayment()
+                                                                    .filter(z -> z.getTransactionId().equals(trans.getId()))
+                                                                    .collectList()
+                                                                    .flatMapMany((payments -> {
+                                                                        return purchaseClient.getPurchase()
+                                                                                .filter(y -> y.getTransactionId().equals(trans.getId()))
+                                                                                .collectList()
+                                                                                .flatMapMany(purchases -> {
+                                                                                    return signatoryClient.getSignatory()
+                                                                                            .filter(o -> o.getTransactionId().equals(trans.getId()))
+                                                                                            .collectList()
+                                                                                            .flatMapMany(signatories -> {
+                                                                                                //ValorAllValidator(trans, customer, product, deposit, withdrawals, payments, purchases, signatories);
+                                                                                                List<DateInterface> x= new ArrayList<>();
+                                                                                                x.addAll(deposit);
+                                                                                                x.addAll(withdrawals);
+                                                                                                x.addAll(payments);
+                                                                                                x.addAll(purchases);
+                                                                                                x.sort((o1, o2) -> o1.getDate().compareTo(o2.getDate()));
+                                                                                                log.info(x.toString());
+                                                                                                return Flux.fromIterable(x).take(10).collectList().flatMapMany(to -> {
+                                                                                                	trans.setMovements(to);
+                                                                                                	return Flux.just(trans);
+                                                                                                });
+                                                                                                //trans.setMovements(x);
+                                                                                                // (o1, o2) -> o1.getCreditCardAssociationDate().compareTo(o2.getCreditCardAssociationDate())
+                                                                                                //return Flux.fromIterable(x);
+                                                                                            });
+                                                                                });
+
+                                                                    } ));
+                                                        } ));
+                                            })));
+                        }));
     }
 }
