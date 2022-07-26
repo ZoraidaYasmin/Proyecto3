@@ -2,6 +2,8 @@ package com.proyecto1.customer.controller;
 
 import com.proyecto1.customer.dto.CustomerDTO;
 import com.proyecto1.customer.entity.Customer;
+import com.proyecto1.customer.entity.Product;
+import com.proyecto1.customer.entity.Transaction;
 import com.proyecto1.customer.service.CustomerService;
 import com.proyecto1.customer.service.impl.CustomerServiceImpl;
 import org.bson.types.ObjectId;
@@ -21,6 +23,9 @@ import org.springframework.web.reactive.function.BodyInserters;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+
 import static org.mockito.Mockito.times;
 
 @ExtendWith(SpringExtension.class)
@@ -32,6 +37,34 @@ public class CustomerControllerTest {
     private CustomerService customerService;
     @Autowired
     private WebTestClient webTestClient;
+
+    @Test
+    void summaryCustomerByProduct(){
+        Transaction transactionMono = Transaction.builder()
+                .id(ObjectId.get().toString())
+                .customerId("23424242345fdd")
+                .productId("242342j3nji234")
+                .depositId("234234u89534hufinf")
+                .accountNumber("38748398273492734")
+                .movementLimit(1)
+                .creditLimit(BigDecimal.valueOf(300))
+                .availableBalance(BigDecimal.valueOf(200))
+                .maintenanceCommission(BigDecimal.valueOf(2.00))
+                .cardNumber("2732648729238423742")
+                .retirementDateFixedTerm(LocalDate.now())
+                .customer(new Customer())
+                .product(new Product())
+                .build();
+
+        Mockito.when(customerService.summaryCustomerByProduct()).thenReturn(Flux.just(transactionMono));
+
+        webTestClient.post().uri("/customer/create")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(BodyInserters.fromValue(transactionMono))
+                .exchange()
+                .expectStatus()
+                .isOk().expectBody();
+    }
     @Test
     void createCustomerTest() {
         CustomerDTO customerMono = CustomerDTO.builder()

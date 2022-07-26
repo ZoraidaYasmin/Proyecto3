@@ -105,7 +105,7 @@ public class TransactionControllerTest {
                 .jsonPath("$.availableBalance").isEqualTo(BigDecimal.valueOf(20))
                 .jsonPath("$.maintenanceCommission").isEqualTo(BigDecimal.valueOf(5.00))
                 .jsonPath("$.cardNumber").isEqualTo("2347823482742934")
-                .jsonPath("$.retirementDateFixedTerm").isEqualTo("2022-07-20")
+                .jsonPath("$.retirementDateFixedTerm").isEqualTo("2022-07-26")
                 .jsonPath("$.customer").isEqualTo(new Customer())
                 .jsonPath("$.product").isEqualTo(new Product());
 
@@ -246,7 +246,7 @@ public class TransactionControllerTest {
                 .jsonPath("$.availableBalance").isEqualTo(BigDecimal.valueOf(20))
                 .jsonPath("$.maintenanceCommission").isEqualTo(BigDecimal.valueOf(5.00))
                 .jsonPath("$.cardNumber").isEqualTo("2347823482742934")
-                .jsonPath("$.retirementDateFixedTerm").isEqualTo("2022-07-20")
+                .jsonPath("$.retirementDateFixedTerm").isEqualTo("2022-07-26")
                 .jsonPath("$.customer").isEqualTo(new Customer())
                 .jsonPath("$.product").isEqualTo(new Product());
 

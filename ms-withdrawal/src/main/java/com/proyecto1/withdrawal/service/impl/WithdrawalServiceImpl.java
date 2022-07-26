@@ -7,7 +7,9 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.proyecto1.withdrawal.client.DebitCardClient;
 import com.proyecto1.withdrawal.client.TransactionClient;
+import com.proyecto1.withdrawal.entity.Deposit;
 import com.proyecto1.withdrawal.entity.Transaction;
 import com.proyecto1.withdrawal.entity.Withdrawal;
 import com.proyecto1.withdrawal.repository.WithdrawalRepository;
@@ -26,6 +28,10 @@ public class WithdrawalServiceImpl implements WithdrawalService {
 
     @Autowired
     TransactionClient transactionClient;
+    
+    @Autowired
+    DebitCardClient debitCardClient;
+    
     @Override
     public Flux<Withdrawal> findAll() {
         log.info("Method call FindAll - withdrawal");
@@ -44,13 +50,13 @@ public class WithdrawalServiceImpl implements WithdrawalService {
                     		if(account.getMaxAmountTransaction() > account.getCurrentNumberTransaction()) {
                     			return updateCurrentNumberTransaction(transactionClient.getTransactionWithDetails(c.getTransactionId()))
                     					.flatMap(trans -> {
-                    						return withdrawalRepository.save(c);
+                    						return validateDebitCard(c);
                     					});
                     			// return depositRepository.save(deposit).doOnNext(depositSaved -> updateCurrentNumberTransaction(transactionClient.getTransactionWithDetails(deposit.getTransactionId())));
                     		} else {
                     			// Maximo Numero de trasacciones, se cobra comision
                     			c.setWithdrawalAmount(c.getWithdrawalAmount().add(account.getMaintenanceCommission().multiply(c.getWithdrawalAmount().divide(BigDecimal.valueOf(100)))));
-                    			return withdrawalRepository.save(c);
+                    			return validateDebitCard(c);
                     		}
                     	});
                         
@@ -90,5 +96,20 @@ public class WithdrawalServiceImpl implements WithdrawalService {
     		t.setCurrentNumberTransaction(t.getCurrentNumberTransaction()+1);
     		return transactionClient.updateTransaction(t);
     	});
+    }
+    
+    private Mono<Withdrawal> validateDebitCard(Withdrawal withdrawal){
+    	return transactionClient.getTransactionWithDetails(withdrawal.getTransactionId())
+    			.flatMap(trans -> debitCardClient.getAccountDetailByDebitCard(trans.getCardNumber())
+    					.collectList()
+    					.flatMap(dc -> {
+    						Transaction otrans = dc.stream().findFirst().get().getTransaction().stream().filter(t -> t.getProduct().getIndProduct() == 2 && t.getAvailableBalance().compareTo(withdrawal.getWithdrawalAmount()) >= 0).findFirst().get();
+    						if (otrans != null) {
+    							withdrawal.setTransactionId(otrans.getId());
+        						return withdrawalRepository.save(withdrawal);
+    						}else {
+    							return Mono.error(new RuntimeException("No hay cuentas con sado disponible"));
+    						}
+    					}));
     }
 }

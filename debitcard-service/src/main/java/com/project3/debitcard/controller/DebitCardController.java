@@ -40,13 +40,7 @@ public class DebitCardController {
 	  LOG.info("Service call FindById - DebitCard");
 	  return debitCardService.findById(id);
 	}
-	
-	@GetMapping("/findByTransactionId/{id}")
-	public Mono<DebitCard> findByTransactionId(@PathVariable String id) {
-	  LOG.info("Service call findByTransactionId - DebitCard");
-	  return debitCardService.findByTransactionId(id);
-	}
-	
+
 	@GetMapping("/accountDetail/{id}")
 	public Flux<DebitCard> accountDetail(@PathVariable String id) {
 	  LOG.info("Service call accountDetail - DebitCard");
@@ -66,7 +60,7 @@ public class DebitCardController {
 	}
 
 	@DeleteMapping("/delete/{id}")
-	public Mono<Void> deleteDebitCard(@PathVariable String id) {
+	public Mono<DebitCard> deleteDebitCard(@PathVariable String id) {
 	  LOG.info("Service call delete - DebitCard");
 	  return debitCardService.delete(id);
 	}
