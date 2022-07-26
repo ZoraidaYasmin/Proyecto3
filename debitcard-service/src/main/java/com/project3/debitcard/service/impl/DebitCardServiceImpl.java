@@ -68,11 +68,23 @@ public class DebitCardServiceImpl implements DebitCardService{
 
 	@Override
 	public Mono<DebitCard> delete(String id) {
-		//log.info("Method call Delete - customer");
 		return debitCardRepository.findById(id).flatMap(
 				x -> debitCardRepository.delete(x).then(Mono.just(new DebitCard())));
 	}
 
+	@Override
+	public Flux<DebitCard> principalDebitAccount(String cardNumber) {
+		return findAll().filter(dc -> dc.getCardNumber().equalsIgnoreCase(cardNumber))
+				.flatMap(debitCard -> transactionClient.findAllWithDetail()
+				.filter(trans -> trans.getCardNumber().equalsIgnoreCase(cardNumber) && trans.getCardNumber().equalsIgnoreCase(debitCard.getCardNumber()))
+				.collectList()
+				.flatMapMany(trans -> {
+					trans.sort((o1, o2) -> o1.getCreditCardAssociationDate().compareTo(o2.getCreditCardAssociationDate()));
+					Transaction otrans = trans.stream().filter(t -> t.getProduct().getIndProduct() == 2 ).findFirst().get();
+					debitCard.setTrans(otrans);
+					return Flux.just(debitCard);
+				}));
+	}
 
 
 }

@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 
 @Data @AllArgsConstructor @NoArgsConstructor
 @Builder
-public class Payment {
+public class Payment implements DateInterface {
 
     @Id
     private String id;

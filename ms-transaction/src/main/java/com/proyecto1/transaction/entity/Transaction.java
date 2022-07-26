@@ -72,5 +72,8 @@ public class Transaction {
 
     @Transient
     private List<Signatory> signatories;
+    
+    @Transient
+    private List<DateInterface> movements;
 
 }

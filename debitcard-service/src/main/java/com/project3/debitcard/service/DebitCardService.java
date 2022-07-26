@@ -17,7 +17,8 @@ public interface DebitCardService {
 
     Mono<DebitCard> delete(String id);
 	
-
+    Flux<DebitCard> principalDebitAccount(String cardNumber);
+    
 	Flux<DebitCard> accountDetail(String cardNumber);
 	
 }

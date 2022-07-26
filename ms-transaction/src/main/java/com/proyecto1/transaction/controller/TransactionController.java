@@ -23,6 +23,14 @@ public class TransactionController {
         return transactionService.findAll();
     }
     
+    @GetMapping("/lastTenMovements")
+    public Flux<Transaction> getLastTenMovements(){
+        log.info("Service call lastTenMovements - transaction");
+        return transactionService.lastTenMovements();
+    }
+    
+    
+    
     @GetMapping("/findAllWithDetail")
     public Flux<Transaction> getTransactions(){
         log.info("Service call findAllWithDetail - transaction");

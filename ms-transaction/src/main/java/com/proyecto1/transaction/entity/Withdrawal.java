@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 
 @Data @NoArgsConstructor @AllArgsConstructor
 @Builder
-public class Withdrawal {
+public class Withdrawal implements DateInterface {
 
     @Id
     private String id;
