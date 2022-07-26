@@ -7,8 +7,6 @@ spring:
     config:
       server:
         git:
-          uri: https://github.com/YamilRios/bc26-project2.git
+          uri: https://github.com/ZoraidaYasmin/bootcamp-proyecto3.git
           search-paths: config-data
           default-label: ${GIT_BRANCH}
-          username: ${GIT_USER}
-          password: ${GIT_PSWD}
