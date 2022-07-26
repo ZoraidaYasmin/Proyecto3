@@ -12,15 +12,12 @@ public interface DebitCardService {
     Mono<DebitCard> create(DebitCard dc);
 
     Mono<DebitCard> findById(String id);
-    
-    Mono<DebitCard> findByTransactionId(String id);
 
     Mono<DebitCard> update(DebitCard dc, String id);
 
-    Mono<Void> delete(String id);
+    Mono<DebitCard> delete(String id);
 	
-	Mono<DebitCard> findByCardNumber(String cardNumber);
-	
+
 	Flux<DebitCard> accountDetail(String cardNumber);
 	
 }

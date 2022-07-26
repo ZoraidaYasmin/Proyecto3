@@ -55,7 +55,7 @@ public class TransactionServiceImplTest {
     @Test
      void findAllWithDetail(){
         Customer customer = Customer.builder()
-                .id("2854445425")
+                .id("23424242345fdd")
                 .name("yasmin")
                 .lastName("oyarce")
                 .docNumber("2342342342")
@@ -63,7 +63,7 @@ public class TransactionServiceImplTest {
                 .descTypeCustomer("personal").build();
 
         Product product = Product.builder()
-                .id("83457346534534")
+                .id("242342j3nji234")
                 .indProduct(1)
                 .descIndProduct("cuenta bancaria")
                 .typeProduct(1)
@@ -127,8 +127,8 @@ public class TransactionServiceImplTest {
                 .build();
 
         Mockito.when(transactionRepository.findAll()).thenReturn(Flux.just(transactionMono));
-        Mockito.when(customerClient.getCustomer(customer.getId())).thenReturn(Mono.just(customer));
-        Mockito.when(productClient.getProduct(product.getId())).thenReturn(Mono.just(product));
+        Mockito.when(customerClient.getCustomer(transactionMono.getCustomerId())).thenReturn(Mono.just(customer));
+        Mockito.when(productClient.getProduct(transactionMono.getProductId())).thenReturn(Mono.just(product));
         Mockito.when(depositClient.getDeposit()).thenReturn(Flux.just(deposit));
         Mockito.when(withDrawalClient.getWithDrawal()).thenReturn(Flux.just(withdrawal));
         Mockito.when(paymentClient.getPayment()).thenReturn(Flux.just(payment));
@@ -333,7 +333,7 @@ public class TransactionServiceImplTest {
     @Test
      void findByIdWithCustomer(){
         Customer customer = Customer.builder()
-                .id("2854445425")
+                .id("23424242345fdd")
                 .name("yasmin")
                 .lastName("oyarce")
                 .docNumber("2342342342")
@@ -341,7 +341,7 @@ public class TransactionServiceImplTest {
                 .descTypeCustomer("personal").build();
 
         Product product = Product.builder()
-                .id("83457346534534")
+                .id("242342j3nji234")
                 .indProduct(1)
                 .descIndProduct("cuenta bancaria")
                 .typeProduct(1)
@@ -405,8 +405,8 @@ public class TransactionServiceImplTest {
                 .build();
 
         Mockito.when(transactionRepository.findById(transactionMono.getId())).thenReturn(Mono.just(transactionMono));
-        Mockito.when(customerClient.getCustomer(customer.getId())).thenReturn(Mono.just(customer));
-        Mockito.when(productClient.getProduct(product.getId())).thenReturn(Mono.just(product));
+        Mockito.when(customerClient.getCustomer(transactionMono.getCustomerId())).thenReturn(Mono.just(customer));
+        Mockito.when(productClient.getProduct(transactionMono.getProductId())).thenReturn(Mono.just(product));
         Mockito.when(depositClient.getDeposit()).thenReturn(Flux.just(deposit));
         Mockito.when(withDrawalClient.getWithDrawal()).thenReturn(Flux.just(withdrawal));
         Mockito.when(paymentClient.getPayment()).thenReturn(Flux.just(payment));
@@ -424,7 +424,7 @@ public class TransactionServiceImplTest {
     void saveTransaction(){
 
         Product product = Product.builder()
-                .id("83457346534534")
+                .id("242342j3nji234")
                 .indProduct(2)
                 .descIndProduct("cuenta bancaria")
                 .typeProduct(1)
@@ -432,7 +432,7 @@ public class TransactionServiceImplTest {
                 .build();
 
         Customer customer = Customer.builder()
-                .id("2854445425")
+                .id("23424242345fdd")
                 .name("yasmin")
                 .lastName("oyarce")
                 .docNumber("2342342342")
@@ -455,9 +455,10 @@ public class TransactionServiceImplTest {
                 .product(product)
                 .build();
 
-        Mockito.when(productClient.getProduct(product.getId())).thenReturn(Mono.just(product));
-        Mockito.when(customerClient.getCustomer(customer.getId())).thenReturn(Mono.just(customer));
         Mockito.when(transactionRepository.findAll()).thenReturn(Flux.just(transactionMono));
+        Mockito.when(productClient.getProduct(transactionMono.getProductId())).thenReturn(Mono.just(product));
+        Mockito.when(customerClient.getCustomer(transactionMono.getCustomerId())).thenReturn(Mono.just(customer));
+
 
 
         assertDoesNotThrow(() -> transacionServiceImpl.save(transactionMono)
