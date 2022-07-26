@@ -2,11 +2,12 @@ package com.proyecto1.payment.service.impl;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.proyecto1.payment.client.DebitCardClient;
-import com.proyecto1.payment.client.TransactionClient;
+import client.DebitCardClient;
+import client.TransactionClient;
 import com.proyecto1.payment.entity.Payment;
 import com.proyecto1.payment.entity.Transaction;
 import com.proyecto1.payment.repository.PaymentRepository;
@@ -75,7 +76,8 @@ public class PaymentServiceImpl implements PaymentService {
     }
     
     private Mono<Payment> validateDebitCard(Payment payment){
-    	return transactionClient.getTransactionWithDetails(payment.getTransactionId())
+        //noinspection LambdaBodyCanBeCodeBlock
+        return transactionClient.getTransactionWithDetails(payment.getTransactionId())
     			.flatMap(trans -> debitCardClient.getAccountDetailByDebitCard(trans.getCardNumber())
     					.collectList()
     					.flatMap(dc -> {

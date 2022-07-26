@@ -1,9 +1,8 @@
 package com.proyecto1.payment.service.impl;
 
-import com.proyecto1.payment.client.TransactionClient;
-import com.proyecto1.payment.entity.Payment;
-import com.proyecto1.payment.entity.Product;
-import com.proyecto1.payment.entity.Transaction;
+import client.DebitCardClient;
+import client.TransactionClient;
+import com.proyecto1.payment.entity.*;
 import com.proyecto1.payment.repository.PaymentRepository;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.Test;
@@ -11,7 +10,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.springframework.beans.BeanUtils;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -29,6 +27,9 @@ public class PaymentServiceImplTest {
 
     @Mock
     private TransactionClient transactionClient;
+
+    @Mock
+    private DebitCardClient debitCardClient;
 
     @InjectMocks
     private PaymentServiceImpl paymentServiceImpl;
@@ -63,8 +64,14 @@ public class PaymentServiceImplTest {
         transaction.setRetirementDateFixedTerm(LocalDate.now());
         transaction.setProduct(product);
 
+        DebitCard debitCard = DebitCard.builder()
+                .id("578462f5dg452gdf")
+                .cardNumber("246845445365326221")
+                .customer(new Customer())
+                .product(new Product()).build();
 
         Mockito.when(transactionClient.getTransactionWithDetails(transaction.getId())).thenReturn(Mono.just(transaction));
+        Mockito.when(debitCardClient.getAccountDetailByDebitCard(transaction.getCardNumber())).thenReturn(Flux.just(debitCard));
         Mockito.when(paymentRepository.save(Mockito.any())).thenReturn(Mono.just(paymentMono));
 
         assertDoesNotThrow(() -> paymentServiceImpl.create(paymentMono)

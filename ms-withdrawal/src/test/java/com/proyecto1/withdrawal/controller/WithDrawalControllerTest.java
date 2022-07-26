@@ -118,7 +118,7 @@ public class WithDrawalControllerTest {
                 .expectBody()
                 .jsonPath("$.id").isNotEmpty()
                 .jsonPath("$.id").isEqualTo("12buhvg24uhjknv2")
-                .jsonPath("$.date").isEqualTo("2022-07-20")
+                .jsonPath("$.date").isEqualTo("2022-07-26")
                 .jsonPath("$.withdrawalAmount").isEqualTo(BigDecimal.valueOf(2000))
                 .jsonPath("$.description").isEqualTo("demo withdrawal")
                 .jsonPath("$.transactionId").isEqualTo("678676898wdfs");
